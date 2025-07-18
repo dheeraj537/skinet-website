@@ -1,3 +1,4 @@
+using API.Middleware;
 using Core;
 using Core.Interfaces;
 using Infrastructure.Data;
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<StoreContext>(opt =>
 builder.Services.AddScoped<IproductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddOpenApi();
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -25,7 +27,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
+    .WithOrigins("http://localhost:4200", "https://localhost:4200"));
 app.MapControllers();
 
 try
